@@ -12,14 +12,18 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Checkout project
-        run: cd basics/web-project-01/
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
+      - name: Checkout project
+        run: |
+          cd basics/web-project-01/
+          ls
       - name: Install dependencies
-        run: npm install
+        run: |
+          ls
+          npm install
       - name: Run tests
         run: npm test
 
