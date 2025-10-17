@@ -1,0 +1,15 @@
+name: First-Workflow # Name of the workflow
+on: workflow_dispatch # Manually trigger the workflow
+jobs: # A workflow run is made up of one or more jobs that can run sequentially or in parallel
+  first-job: # Job name, can be any name
+    runs-on: ubuntu-latest # The type of runner that the job will run on
+    steps: # Steps represent a sequence of tasks that will be executed as part of the job
+      - name: Print greeting
+        run: echo "Hello World!"
+      - name: Multi Line Output
+        run: |
+          echo "This is a multi line script"
+          echo "It can have multiple commands"
+          echo "Each command is executed in order"
+      - name: Print goodbye
+        run: echo "Done - bye!"
