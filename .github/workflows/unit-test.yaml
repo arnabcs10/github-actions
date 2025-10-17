@@ -23,6 +23,7 @@ jobs:
         run: npm test
         working-directory: basics/web-project-01/
   deploy:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
