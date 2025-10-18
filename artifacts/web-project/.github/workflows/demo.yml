@@ -13,14 +13,14 @@ jobs:
       - name: Get code
         uses: actions/checkout@v3
       - name: Install dependencies
-        run: npm ci
-        working-directory: basics/web-project/
+        run: npm install
+        working-directory: artifacts/web-project/
       - name: Lint code
         run: npm run lint
-        working-directory: basics/web-project/
+        working-directory: artifacts/web-project/
       - name: Test code
         run: npm run test
-        working-directory: basics/web-project/
+        working-directory: artifacts/web-project/
   build:
     needs: test
     runs-on: ubuntu-latest
@@ -31,7 +31,9 @@ jobs:
         run: npm install
         working-directory: artifacts/web-project/
       - name: Build website
-        run: npm run build
+        run: |
+          npm run build
+          ls
         working-directory: artifacts/web-project/
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -45,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: get Build Artifacts
-        uses: action/download-artifact@v4
+        uses: actions/download-artifact@v4
         with:
           name: dist-files
       - name: List files
