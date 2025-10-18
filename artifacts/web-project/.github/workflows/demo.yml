@@ -1,0 +1,54 @@
+# job Artifacts are outputs produced by a job, like executables, builds or log files.
+# You can upload and download job artifacts using the actions/upload-artifact and actions/download-artifact
+# These can be used to share data between jobs in a workflow or to persist data after a workflow has completed.
+name: Deploy website
+on:
+  push:
+    branches:
+      - main
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        run: npm ci
+        working-directory: basics/web-project/
+      - name: Lint code
+        run: npm run lint
+        working-directory: basics/web-project/
+      - name: Test code
+        run: npm run test
+        working-directory: basics/web-project/
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        run: npm ci
+        working-directory: artifacts/web-project/
+      - name: Build website
+        run: npm run build
+        working-directory: artifacts/web-project/
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist-files
+          path: |
+            ./dist/
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: get Build Artifacts
+        uses: action/download-artifact@v3
+        with:
+          name: dist-files
+      - name: List files
+        run: ls -la ./dist
+      - name: Deploy
+        run: echo "Deploying..."
