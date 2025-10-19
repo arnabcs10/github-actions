@@ -3,6 +3,13 @@ on:
   push:
     branches:
       - main
+
+# Special Conditional functions
+# failure(): Returns true if any previous step in a job has failed.
+# success(): Returns true if all previous steps in a job have succeeded. 
+# always(): Returns true regardless of previous step results.
+# cancelled(): Returns true if the workflow run was cancelled.
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -16,9 +23,11 @@ jobs:
           path: ~/.npm
           key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
-        run: npm ci
+        run: npm install
+        working-directory: execution-flow/web-project/
       - name: Lint code
         run: npm run lint
+        working-directory: execution-flow/web-project/
   test:
     runs-on: ubuntu-latest
     steps:
@@ -31,14 +40,21 @@ jobs:
           path: ~/.npm
           key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
-        run: npm ci
+        run: npm install
+        working-directory: execution-flow/web-project/
       - name: Test code
+        id: run-tests # We give id to any steps, to uniquely identify this step or use its data in other steps or jobs
         run: npm run test
+        working-directory: execution-flow/web-project/
+# failure() function is required here, otherwise upload step will be skipped if test is failed, this is because by default if any step is failed next steps are skipped.
+# So we need to explicitly tell to run this step if test step is failed.
+# 2nd condition is to check if the test step outcome is failure, because failure() will be true even if any previous step is failed, so to make sure its test step failure we are using this condition.
       - name: Upload test report
-        uses: actions/upload-artifact@v3
+        if: ${{ failure() && steps.run-tests.outcome == 'failure' }}
+        uses: actions/upload-artifact@v4
         with:
           name: test-report
-          path: test.json
+          path: ./execution-flow/web-project/test.json
   build:
     needs: test
     runs-on: ubuntu-latest
@@ -46,30 +62,46 @@ jobs:
       - name: Get code
         uses: actions/checkout@v3
       - name: Cache dependencies
-        id: cache
+        id: cache # We give id to any steps, to uniquely identify this step or use its data in other steps or jobs
         uses: actions/cache@v3
         with:
           path: ~/.npm
           key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
-        run: npm ci
+        run: npm install
+        working-directory: execution-flow/web-project/
       - name: Build website
         id: build-website
         run: npm run build
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        working-directory: execution-flow/web-project/
+      - name: Upload execution-flow
+        uses: actions/upload-artifact@v4
         with:
           name: dist-files
-          path: dist
+          path: ./execution-flow/web-project/dist
   deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Get build artifacts
-        uses: actions/download-artifact@v3
+      - name: Get build artifact
+        uses: actions/download-artifact@v4
         with:
           name: dist-files
       - name: Output contents
         run: ls
       - name: Deploy
         run: echo "Deploying..."
+
+# Conditional Jobs
+# You can use if conditional at job level to control whether a job should run or not.
+# for example run report job only if lint & build job is failed, for that it needs to depend on both jobs.
+  report:
+    runs-on: ubuntu-latest
+    needs: [lint, build]
+    # anything after if is by default run within expressions, {{ }} are not required
+    if: failure()
+    steps:
+      - name: output information
+        run: |
+         echo "Something went wrong in lint or build job"
+         echo "${{ toJSON(github)}}"
