@@ -4,10 +4,21 @@ on:
     branches:
       - main
       - dev
+
+# Set env variables available to all jobs
+env:
+  MONGODB_DB_NAME: gha-demo
 jobs:
   test:
+# In repo settings, set environment to use GitHub Environments feature, where we can set environment-specific secrets and protection rules
     environment: testing
     runs-on: ubuntu-latest
+    env: # set env variables available to this job and all its steps
+      MONGODB_CLUSTER_ADDRESS: cluster0.ntrwp.mongodb.net
+# set env variables from GitHub Secrets, can be set in repo settings from github UI
+      MONGODB_USERNAME: ${{ secrets.MONGODB_USERNAME }}
+      MONGODB_PASSWORD: ${{ secrets.MONGODB_PASSWORD }}
+      PORT: 8080
     steps:
       - name: Get Code
         uses: actions/checkout@v3
@@ -19,15 +30,20 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Run server
-        run: npm start & npx wait-on http://127.0.0.1:XYZ
+        run: npm start & npx wait-on http://127.0.0.1:$PORT # requires MongoDB Atlas to accept requests from anywhere!
       - name: Run tests
         run: npm test
       - name: Output information
-        run: echo "..."
+        run: |
+          echo "MONGODB_USERNAME: $MONGODB_USERNAME" # One way of accessing job-level env variables
   deploy:
     needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Output information
+        env:
+          PORT: 3000
         run: |        
-          echo "..."
+          echo "MONGODB_DB_NAME: $MONGODB_DB_NAME"
+          echo "MONGODB_USERNAME: $MONGODB_USERNAME"
+          echo "${{ env.PORT }}" # Another way of accessing job-level env variables
