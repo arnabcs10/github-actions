@@ -1,6 +1,15 @@
 # job Artifacts are outputs produced by a job, like executables, builds or log files.
 # You can upload and download job artifacts using the actions/upload-artifact and actions/download-artifact
 # These can be used to share data between jobs in a workflow or to persist data after a workflow has completed.
+
+# We can also use outputs from one job in another job.
+# Set like this- run : echo '{output-name}={output-value}' >> $GITHUB_OUTPUT
+# Retrive like this - "${ needs.{job-id}.outputs.{output-name} }}"
+
+# To speed up our jobs, we can cache dependencies between jobs/workflows using actions/cache
+# These caches are stored centrally by GitHub and can be shared between jobs and workflows.
+# After the first run, subsequent runs restore the cache if the key matches.
+
 name: Deploy website
 on:
   push:
@@ -12,6 +21,11 @@ jobs:
     steps:
       - name: Get code
         uses: actions/checkout@v3
+      - name: Cache Dependencies
+        uses: actions/cache@v3
+        with:
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          path: ~/.npm
       - name: Install dependencies
         run: npm install
         working-directory: artifacts/web-project/
@@ -29,6 +43,11 @@ jobs:
     steps:
       - name: Get code
         uses: actions/checkout@v3
+      - name: Cache Dependencies
+        uses: actions/cache@v3
+        with:
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          path: ~/.npm
       - name: Install dependencies
         run: npm install
         working-directory: artifacts/web-project/
