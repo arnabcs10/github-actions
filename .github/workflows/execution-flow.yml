@@ -39,7 +39,7 @@ jobs:
         run: npm run test
         working-directory: execution-flow/web-project/
       - name: Upload test report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-report
           path: ./execution-flow/web-project/test.json
