@@ -94,14 +94,14 @@ jobs:
 
 # Conditional Jobs
 # You can use if conditional at job level to control whether a job should run or not.
-# for example run report job only if lint & build job is failed, for that it needs to depend on both jobs.
+# for example run report job only if lint & deploy job is failed, for that it needs to depend on both jobs.
   report:
     runs-on: ubuntu-latest
-    needs: [lint, build]
+    needs: [lint, deploy]
     # anything after if is by default run within expressions, {{ }} are not required
     if: failure()
     steps:
       - name: output information
         run: |
-         echo "Something went wrong in lint or build job"
+         echo "Something went wrong in lint or deploy job"
          echo "${{ toJSON(github)}}"
