@@ -1,0 +1,34 @@
+name: Matrix Build Example
+on:
+  push:
+    branches:
+      - main
+
+# Define a job with a matrix strategy
+# This job will run multiple times Perrallely with different combinations of the defined variables in the matrix
+# Here we are defining a matrix for different Node.js versions and operating systems
+# Each combination will create a separate job run
+# like Node.js 12 on Ubuntu, Node.js 12 on Windows, etc.
+# if one job fails, other jobs will fail to run, hence we can add continue-on-error: true to allow other jobs to run even if one fails.
+
+jobs:
+  build:
+    continue-on-error: true
+    strategy:
+        matrix:
+          node-version: [12, 14, 16]
+          os: [ubuntu-latest, windows-latest]
+          include: # we can also include specific combinations that are not part of the above defined matrix, it allows us to add standalone cominations
+          - node-version: 18
+            os: ubuntu-latest
+          exclude: # we can also exclude specific combinations from the matrix
+          - node-version: 12
+            os: windows-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Install NodeJS
+        uses: actions/setup-node@v3
+        with:
+            node-version: ${{ matrix.node-version}}
