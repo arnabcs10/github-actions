@@ -81,7 +81,7 @@ jobs:
           path: ./execution-flow/web-project/dist
   deploy:
     needs: build
-    uses: ./.github/workflows/reusable.yml@main
+    uses: ./.github/workflows/reusable.yaml
     with:
       artifact-name: dist-files
     # secrets:
