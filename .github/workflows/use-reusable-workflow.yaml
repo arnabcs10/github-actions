@@ -1,4 +1,4 @@
-name: Use Resuable Workflow
+name: Use Resuable Jobs
 on:
   push:
     branches:
