@@ -7,7 +7,10 @@
 
 1. Javascript Action
  - Here we develop the action logic in javascript, and when invoked a js code is executed.
- - JS packages can be used
+ - JS packages can be used. Github actions packages are required for development
+ - These are required for interacting with github runners and UI, like printing the log messages on UI
+
+npm install @actions/core @actions/github @actions/exec
 
 2. Docker Action
  - Here we create a dockerfile with our required configuration & github will create a docker container based on your dockerfile image.
