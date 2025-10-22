@@ -33,7 +33,7 @@ jobs:
         working-directory: custom-actions/web-project/
       - name: Upload test report
         if: failure() && steps.run-tests.outcome == 'failure'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-report
           path: custom-actions/web-project/test.json
@@ -52,7 +52,7 @@ jobs:
         run: npm run build
         working-directory: custom-actions/web-project/
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dist-files
           path: custom-actions/web-project/dist
@@ -63,7 +63,7 @@ jobs:
       - name: Get code
         uses: actions/checkout@v3
       - name: Get build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: dist-files
           path: ./dist
