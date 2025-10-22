@@ -1,0 +1,26 @@
+name: 'Get & Cache Dependencies'
+description: 'Get the dependencies and caches them'
+inputs:
+  caching:
+    description: 'Whether to cache dependencies or not'
+    required: false
+    default: 'true'
+  working-directory:
+    description: 'The working directory to run commands in'
+    required: false
+    default: './'
+runs:
+  using: 'composite' # This defines we are using composite actions here.
+  steps:
+    - name: Cache dependencies
+      if: ${{ inputs.caching == 'true' }}
+      id: cache
+      uses: actions/cache@v3
+      with:
+        path: node_modules
+        key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+    - name: Install dependencies
+      if: steps.cache.outputs.cache-hit != 'true' || inputs.caching == 'false'
+      shell: bash
+      run: npm install
+      working-directory: ${{ inputs.working-directory }}
