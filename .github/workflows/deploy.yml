@@ -10,10 +10,13 @@ jobs:
       - name: Get code
         uses: actions/checkout@v3
       - name: Load & Cache dependencies
+        id: load-cache
         uses: ./.github/actions/cached-deps # action.yaml is not required, github will find it automatically
         with:
           caching: 'true'
           working-directory: custom-actions/web-project/
+      - name: Output cache status
+        run: echo 'Cache used ${{ steps.load-cache.outputs.used-cache }}'
       - name: Lint code
         run: npm run lint
         working-directory: custom-actions/web-project/
