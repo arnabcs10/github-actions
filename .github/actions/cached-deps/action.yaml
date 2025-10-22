@@ -28,5 +28,5 @@ runs:
       shell: bash
       run: |
         npm install
-        echo "cache=${{ inputs.caching }}" >> $GITHUB_OUTPUT"
+        echo "cache=${{ inputs.working-directory }}" >> $GITHUB_OUTPUT"
       working-directory: ${{ inputs.working-directory }}
