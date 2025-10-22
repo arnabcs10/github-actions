@@ -9,6 +9,10 @@ inputs:
     description: 'The working directory to run commands in'
     required: false
     default: './'
+outputs:
+  used-cache:
+    description: 'Whether the cache was used or not'
+    value: ${{ steps.install.outputs.cache }}
 runs:
   using: 'composite' # This defines we are using composite actions here.
   steps:
@@ -22,5 +26,7 @@ runs:
     - name: Install dependencies
       if: steps.cache.outputs.cache-hit != 'true' || inputs.caching == 'false'
       shell: bash
-      run: npm install
+      run: |
+        npm install
+        echo "cache='${{ inputs.caching }}'" >> $GITHUB_OUTPUT
       working-directory: ${{ inputs.working-directory }}
